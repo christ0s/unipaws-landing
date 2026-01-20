@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniPaws - Pet Identification</title>
+    <meta name="description" content="Found a pet? UniPaws helps connect lost pets with their owners.">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="UniPaws - Pet Found">
+    <meta property="og:description" content="Help reunite this pet with their owner">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://unipaws.gr/og-image.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UniPaws - Pet Found">
+    <meta name="twitter:description" content="Help reunite this pet with their owner">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+    
+    <!-- Deep Link for iOS -->
+    <meta name="apple-itunes-app" content="app-id=YOUR_APP_ID, app-argument=unipaws://pet/">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #5b21b6;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #ddd6fe 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 420px;
+            width: 100%;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        /* Missing Alert Banner */
+        .missing-banner {
+            background: var(--danger);
+            color: white;
+            padding: 16px 20px;
+            display: none;
+        }
+        
+        .missing-banner.show {
+            display: block;
+        }
+        
+        .missing-banner h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        .missing-banner p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .missing-details {
+            margin-top: 12px;
+            font-size: 13px;
+            opacity: 0.85;
+        }
+        
+        /* Pet Profile Section */
+        .pet-profile {
+            padding: 32px 24px;
+            text-align: center;
+        }
+        
+        .pet-photo {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            margin: 0 auto 16px;
+            background: var(--gray-100);
+        }
+        
+        .pet-photo-placeholder {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin: 0 auto 16px;
+            border: 4px solid var(--primary);
+        }
+        
+        .pet-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+        
+        .pet-species {
+            color: var(--gray-500);
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .pet-id {
+            display: inline-block;
+            background: var(--gray-100);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+        
+        /* Owner Info */
+        .owner-section {
+            padding: 16px 24px;
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        .owner-section h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+        
+        .owner-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 24px;
+        }
+        
+        .download-title {
+            text-align: center;
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-bottom: 16px;
+        }
+        
+        .app-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        
+        .app-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            background: var(--gray-900);
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.2s, background 0.2s;
+        }
+        
+        .app-btn:hover {
+            background: var(--gray-700);
+            transform: translateY(-2px);
+        }
+        
+        .app-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .open-app-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            transition: background 0.2s, transform 0.2s;
+        }
+        
+        .open-app-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .open-app-btn.danger {
+            background: var(--danger);
+        }
+        
+        .open-app-btn.danger:hover {
+            background: #b91c1c;
+        }
+        
+        /* Branding */
+        .branding {
+            text-align: center;
+            padding: 24px;
+            color: var(--gray-500);
+        }
+        
+        .branding .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        
+        .branding p {
+            font-size: 12px;
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 24px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Error State */
+        .error-state {
+            text-align: center;
+            padding: 40px 24px;
+        }
+        
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .error-state h2 {
+            font-size: 20px;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+        
+        .error-state p {
+            color: var(--gray-500);
+            font-size: 14px;
+        }
+        
+        /* Hidden by default */
+        .pet-content, .error-content {
+            display: none;
+        }
+        
+        /* Language Switcher */
+        .lang-switch {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .lang-btn {
+            background: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher -->
+    <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="setLanguage('el')">ΕΛ</button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <!-- Loading State -->
+            <div class="loading" id="loadingState">
+                <div class="loading-spinner"></div>
+                <p data-i18n="loading">Loading pet information...</p>
+            </div>
+            
+            <!-- Pet Content -->
+            <div class="pet-content" id="petContent">
+                <!-- Missing Banner -->
+                <div class="missing-banner" id="missingBanner">
+                    <h3>
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <span data-i18n="missingAlert">THIS PET IS MISSING!</span>
+                    </h3>
+                    <p id="missingMessage"></p>
+                    <div class="missing-details" id="missingDetails"></div>
+                </div>
+                
+                <!-- Pet Profile -->
+                <div class="pet-profile">
+                    <div class="pet-photo-placeholder" id="petPhotoPlaceholder">🐕</div>
+                    <img class="pet-photo" id="petPhoto" src="" alt="Pet photo" style="display: none;">
+                    <h1 class="pet-name" id="petName">Loading...</h1>
+                    <p class="pet-species" id="petSpecies"></p>
+                    <span class="pet-id" id="petId"></span>
+                </div>
+                
+                <!-- Owner Section -->
+                <div class="owner-section">
+                    <h4 data-i18n="owner">Owner</h4>
+                    <p class="owner-name" id="ownerName">Loading...</p>
+                </div>
+                
+                <!-- CTA Section -->
+                <div class="cta-section">
+                    <a href="#" class="open-app-btn" id="openAppBtn" data-i18n="contactOwner">
+                        Contact Owner in App
+                    </a>
+                    
+                    <p class="download-title" data-i18n="downloadPrompt">Don't have the app yet?</p>
+                    
+                    <div class="app-buttons">
+                        <a href="#" class="app-btn" id="iosBtn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                            </svg>
+                            iOS
+                        </a>
+                        <a href="#" class="app-btn" id="androidBtn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.523 15.341c.32 0 .578-.26.578-.579V8.578c0-.32-.259-.578-.578-.578H6.477c-.32 0-.578.259-.578.578v6.184c0 .32.259.579.578.579h11.046zm.578-6.763v6.184a1.578 1.578 0 01-1.578 1.578H6.477a1.578 1.578 0 01-1.578-1.578V8.578A1.578 1.578 0 016.477 7h11.046a1.578 1.578 0 011.578 1.578z"/>
+                                <path d="M16.5 2l1.5 2.5H6L7.5 2h9zM5 17v3.5c0 .828.672 1.5 1.5 1.5S8 21.328 8 20.5V17H5zm11 0v3.5c0 .828.672 1.5 1.5 1.5s1.5-.672 1.5-1.5V17h-3z"/>
+                            </svg>
+                            Android
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error State -->
+            <div class="error-content" id="errorContent">
+                <div class="error-state">
+                    <div class="error-icon">😿</div>
+                    <h2 data-i18n="notFound">Pet Not Found</h2>
+                    <p data-i18n="notFoundMessage">This pet ID is not registered in UniPaws.</p>
+                </div>
+                <div class="cta-section">
+                    <p class="download-title" data-i18n="downloadAnyway">Download UniPaws to register your pet</p>
+                    <div class="app-buttons">
+                        <a href="#" class="app-btn" id="iosBtnError">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                            </svg>
+                            iOS
+                        </a>
+                        <a href="#" class="app-btn" id="androidBtnError">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.523 15.341c.32 0 .578-.26.578-.579V8.578c0-.32-.259-.578-.578-.578H6.477c-.32 0-.578.259-.578.578v6.184c0 .32.259.579.578.579h11.046zm.578-6.763v6.184a1.578 1.578 0 01-1.578 1.578H6.477a1.578 1.578 0 01-1.578-1.578V8.578A1.578 1.578 0 016.477 7h11.046a1.578 1.578 0 011.578 1.578z"/>
+                                <path d="M16.5 2l1.5 2.5H6L7.5 2h9zM5 17v3.5c0 .828.672 1.5 1.5 1.5S8 21.328 8 20.5V17H5zm11 0v3.5c0 .828.672 1.5 1.5 1.5s1.5-.672 1.5-1.5V17h-3z"/>
+                            </svg>
+                            Android
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Branding -->
+        <div class="branding">
+            <div class="logo">🐾 UniPaws</div>
+            <p data-i18n="tagline">Connecting Pet Owners & Saving Lives</p>
+        </div>
+    </div>
+    
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                loading: 'Loading pet information...',
+                missingAlert: 'THIS PET IS MISSING!',
+                owner: 'Owner',
+                contactOwner: 'Contact Owner in App',
+                reportFound: 'I Found This Pet!',
+                downloadPrompt: "Don't have the app yet?",
+                notFound: 'Pet Not Found',
+                notFoundMessage: 'This pet ID is not registered in UniPaws.',
+                downloadAnyway: 'Download UniPaws to register your pet',
+                tagline: 'Connecting Pet Owners & Saving Lives',
+                missingSince: 'Missing since'
+            },
+            el: {
+                loading: 'Φόρτωση πληροφοριών κατοικιδίου...',
+                missingAlert: 'ΑΥΤΟ ΤΟ ΚΑΤΟΙΚΙΔΙΟ ΕΧΕΙ ΧΑΘΕΙ!',
+                owner: 'Ιδιοκτήτης',
+                contactOwner: 'Επικοινωνία μέσω Εφαρμογής',
+                reportFound: 'Βρήκα Αυτό το Κατοικίδιο!',
+                downloadPrompt: 'Δεν έχετε την εφαρμογή;',
+                notFound: 'Κατοικίδιο Δεν Βρέθηκε',
+                notFoundMessage: 'Αυτό το ID κατοικιδίου δεν είναι καταχωρημένο στο UniPaws.',
+                downloadAnyway: 'Κατεβάστε το UniPaws για να καταχωρήσετε το κατοικίδιό σας',
+                tagline: 'Συνδέουμε Ιδιοκτήτες Κατοικιδίων & Σώζουμε Ζωές',
+                missingSince: 'Χαμένο από'
+            }
+        };
+        
+        let currentLang = 'en';
+        
+        // Supabase config (public anon key)
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        // App store links
+        const APP_LINKS = {
+            ios: 'https://apps.apple.com/app/unipaws/id000000000', // Replace with actual
+            android: 'https://play.google.com/store/apps/details?id=com.petrescue.greece' // Replace with actual
+        };
+        
+        // Deep link base
+        const DEEP_LINK_BASE = 'unipaws://pet/';
+        
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === lang || 
+                    (lang === 'el' && btn.textContent === 'ΕΛ'));
+            });
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+        
+        // Get public_id from URL path
+        function getPublicId() {
+            const path = window.location.pathname;
+            const parts = path.split('/').filter(Boolean);
+            return parts[parts.length - 1] || null;
+        }
+        
+        // Fetch pet info from Supabase
+        async function fetchPetInfo(publicId) {
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/public_pet_info?public_id=eq.${publicId}&select=*`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                );
+                
+                if (!response.ok) throw new Error('Failed to fetch');
+                
+                const data = await response.json();
+                return data[0] || null;
+            } catch (error) {
+                console.error('Error fetching pet:', error);
+                return null;
+            }
+        }
+        
+        // Record scan (fire and forget)
+        async function recordScan(petId) {
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/pet_scans`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        pet_id: petId,
+                        scan_source: 'web',
+                        user_agent: navigator.userAgent
+                    })
+                });
+            } catch (e) {
+                console.log('Could not record scan');
+            }
+        }
+        
+        // Display pet info
+        function displayPet(pet) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('petContent').style.display = 'block';
+            
+            // Set pet info
+            document.getElementById('petName').textContent = pet.name;
+            document.getElementById('petSpecies').textContent = pet.species;
+            document.getElementById('petId').textContent = `ID: ${pet.public_id}`;
+            document.getElementById('ownerName').textContent = pet.owner_name;
+            
+            // Photo
+            if (pet.photo_url) {
+                document.getElementById('petPhoto').src = pet.photo_url;
+                document.getElementById('petPhoto').style.display = 'block';
+                document.getElementById('petPhotoPlaceholder').style.display = 'none';
+            } else {
+                // Set placeholder emoji based on species
+                const emoji = pet.species?.toLowerCase() === 'dog' ? '🐕' : 
+                              pet.species?.toLowerCase() === 'cat' ? '🐈' : '🐾';
+                document.getElementById('petPhotoPlaceholder').textContent = emoji;
+            }
+            
+            // Missing status
+            if (pet.is_missing) {
+                const banner = document.getElementById('missingBanner');
+                banner.classList.add('show');
+                
+                const btn = document.getElementById('openAppBtn');
+                btn.classList.add('danger');
+                btn.setAttribute('data-i18n', 'reportFound');
+                btn.textContent = translations[currentLang].reportFound;
+                
+                if (pet.missing_message) {
+                    document.getElementById('missingMessage').textContent = pet.missing_message;
+                }
+                
+                let details = '';
+                if (pet.missing_since) {
+                    const date = new Date(pet.missing_since).toLocaleDateString();
+                    details += `${translations[currentLang].missingSince}: ${date}`;
+                }
+                if (pet.missing_location) {
+                    details += details ? ' • ' : '';
+                    details += `📍 ${pet.missing_location}`;
+                }
+                document.getElementById('missingDetails').textContent = details;
+            }
+            
+            // Set deep link
+            const deepLink = DEEP_LINK_BASE + pet.public_id;
+            document.getElementById('openAppBtn').href = deepLink;
+            
+            // Set app store links
+            document.getElementById('iosBtn').href = APP_LINKS.ios;
+            document.getElementById('androidBtn').href = APP_LINKS.android;
+        }
+        
+        // Show error state
+        function showError() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorContent').style.display = 'block';
+            
+            document.getElementById('iosBtnError').href = APP_LINKS.ios;
+            document.getElementById('androidBtnError').href = APP_LINKS.android;
+        }
+        
+        // Try to open app, fallback to page
+        function tryOpenApp() {
+            const publicId = getPublicId();
+            if (!publicId) return;
+            
+            const deepLink = DEEP_LINK_BASE + publicId;
+            
+            // Try to open app
+            const timeout = setTimeout(() => {
+                // App didn't open, page will load normally
+            }, 2500);
+            
+            // Attempt to open deep link
+            window.location.href = deepLink;
+        }
+        
+        // Initialize
+        async function init() {
+            const publicId = getPublicId();
+            
+            if (!publicId || !/^[A-Z]{3}-\d{4}$/i.test(publicId)) {
+                showError();
+                return;
+            }
+            
+            // Try to open app first
+            tryOpenApp();
+            
+            // Fetch pet info
+            const pet = await fetchPetInfo(publicId.toUpperCase());
+            
+            if (pet) {
+                displayPet(pet);
+                recordScan(pet.id);
+            } else {
+                showError();
+            }
+        }
+        
+        // Detect language from browser
+        if (navigator.language?.startsWith('el')) {
+            setLanguage('el');
+        }
+        
+        // Start
+        init();
+    </script>
+</body>
+</html>
